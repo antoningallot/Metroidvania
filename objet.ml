@@ -8,6 +8,7 @@ type kind =
   |Mur
   |Missile
   |Wallpaper
+  |Bonus
       
 type position = {x : int; y : int};;
 
@@ -76,6 +77,12 @@ let creer_mur x y width height text =
   {pos = pos; oldpos= pos; speed=speed; kind=Mur; w=width; h=height; texture=text; jumping=false; pv = 1; timer_collision = 0; timer_missile = 0; frame = 0; repos = 0; wl =[||]; wr = [||]; jl =[||]; jr = [||];  s = [||]; m = [||] }
 ;;
 
+(* Fonction qui créé un objet bonus *)
+let creer_bonus x y width height text =
+  let pos = {x=x;y=y} in
+  let speed = {vx = 0; vy = 0} in
+  {pos = pos; oldpos= pos; speed=speed; kind=Bonus; w=width; h=height; texture=text; jumping=false; pv = 1; timer_collision = 0; timer_missile = 0; frame = 0; repos = 0; wl =[||]; wr = [||]; jl =[||]; jr = [||];  s = [||]; m = [||] }
+
 (* Fonction qui créé un objet missile à droite du personnage *)
 let creer_missile_right_obj s text p =
   let pos = {x=p.pos.x+p.w+7; y=p.pos.y+22} in
@@ -107,7 +114,7 @@ pour les ennemis et le personnage on incrémente la vitesse en y de 1 à chaque 
 pour les ennemis la vitesse en x reste constante
 pour le personnage la vitesse en x est remise à zéro à chaque itération pour éviter d'avoir une accélération en x *)
 let move_objet o =
-  if o.kind = Plateforme || o.kind = Mur then o
+  if o.kind = Plateforme || o.kind = Mur || o.kind = Bonus then o
   else if o.kind = Missile then
     {o with pos = {o.pos with x = o.pos.x + o.speed.vx}; oldpos = o.pos}
   else if o.kind = Ennemi then

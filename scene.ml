@@ -12,11 +12,18 @@ type scene = {
 };;
 
 (* On déclare ici des listes représentant nos niveaux *)
-let niveau1 = [("Sprite/M1.bmp", Wallpaper, 0,0);("Sprite/S1.bmp",Perso,960,500);
-	       ("Sprite/sol.bmp",Plateforme,0,990);("Sprite/ewr1.bmp",Ennemi,400,390);
-	       ("Sprite/ewr1.bmp",Ennemi,100,390); ("Plateforme1.bmp",Plateforme,870,850);
-	       ("right_border_wall.bmp",Mur, 1919,0); ("left_border_wall.bmp",Mur, 0,0)];;
-let menu = [("menu.bmp",Wallpaper,0,0)];;
+let niveau1 = [("Sprite/map.bmp", Wallpaper, 0,0);("Sprite/S1.bmp",Perso,100,500);
+	       ("Sprite/sol.bmp",Plateforme,0,1047);("Sprite/ewr1.bmp",Ennemi,1400,390);
+	       ("Sprite/ewr1.bmp",Ennemi,1600,390);
+	       ("Sprite/border_wall.bmp",Mur, 1919,0); ("Sprite/border_wall.bmp",Mur, 0,0);
+	       ("Sprite/pilier.bmp",Mur,900,553);("Sprite/plateforme2.bmp",Plateforme,730,900);
+	       ("Sprite/plateforme2.bmp",Plateforme,730,700);("Sprite/plateforme2.bmp",Plateforme,1030,900);
+	       ("Sprite/plateforme2.bmp",Plateforme,1030,700);("Sprite/plateforme1.bmp",Plateforme,0,400);
+	       ("Sprite/ewr1.bmp",Ennemi,10,300);("Sprite/vide.bmp",Plateforme,525,554);
+	       ("Sprite/vide.bmp",Plateforme,430,510);("Sprite/vide.bmp",Plateforme,337,555);
+	       ("Sprite/tete.bmp",Bonus,920,505)
+	      ];;
+let menu = [("Sprite/menu.bmp",Wallpaper,0,0)];;
 
 (* On déclare ici des tableaux contenant tous les sprites que l'on va utiliser pour notre personnage *)
 let jl = [|"Sprite/JL1.bmp";"Sprite/JL2.bmp";"Sprite/JL3.bmp";"Sprite/JL4.bmp"|];;
@@ -104,6 +111,7 @@ let text_list_to_object_list l r =
 	  |Plateforme -> let o = creer_plateforme x y w h texture in let acc = o::acc in aux tl acc
 	  |Mur -> let o = creer_mur x y w h texture in let acc = o::acc in aux tl acc
 	  |Ennemi -> let o = creer_ennemi x y w h texture eleft eright in let acc = o::acc in aux tl acc
+	  |Bonus -> let o = creer_bonus x y w h texture in let acc = o::acc in aux tl acc
 	  |Wallpaper | Missile -> aux tl acc
   in aux l []
 ;;
@@ -124,11 +132,20 @@ let display_list scene =
   let rec aux l =
     match l with
     |[] -> ()    
-    |h::t -> display scene h;
-      aux t
+    |h::t -> match h.kind with
+      |Perso -> let pvperso = h.pv in
+		let pv = Sdl.Rect.create 49 49 152 22 in
+		Sdl.set_render_draw_color scene.renderer 80 80 80 128;
+		Sdl.render_fill_rect scene.renderer (Some pv);
+		let rect = Sdl.Rect.create 50 50 (30 * pvperso) 20 in
+		Sdl.set_render_draw_color scene.renderer 255 255 0 128;
+		Sdl.render_fill_rect scene.renderer (Some rect);
+        display scene h;
+        aux t;
+      |_ -> display scene h;
+    aux t
   in aux scene.objets
 ;;
-
 
 (* Fonction de création d'une scène
 Crée une scène à partir d'une fenetre w, d'un renderer r, d'une liste de (string**Objet.kind*int*int*int) lvl et d'un entier state représentant l'attribut state *)
@@ -237,14 +254,18 @@ let collision_perso p o =
      if p.timer_collision = 0 then
        begin
 	 play_effet "Son/degat.wav";
-	 if collision_right p o then
-           {p with  pv = p.pv-1; timer_collision = 1}
-	 else if collision_left p o then
-           {p with pv = p.pv-1; timer_collision = 1}
-	 else if collision_up p o then
-           {p with pv = p.pv-1; timer_collision = 1}
-	 else
+	 if collision_down p o then
            {p with pv = p.pv-1;jumping = false; timer_collision = 1}
+	 else
+	   {p with  pv = p.pv-1; timer_collision = 1}
+       end
+     else
+       p
+  |Bonus ->
+      if p.timer_collision = 0 then
+       begin
+	 play_effet "Son/bonus.wav";
+         {p with timer_collision = -140}
        end
      else
        p
@@ -264,13 +285,13 @@ let collision_perso p o =
 	 {p with pos = {p.pos with y = o.pos.y+o.h}; speed = {vx = base_speed_x; vy = p.speed.vy}}
        else
 	 {p with pos = {p.pos with y = o.pos.y-p.h}; speed = {vx = base_speed_x; vy = 0}; jumping = false; frame = 0}
-     end
+     end    
 ;;
 
 (* Meme fonction que la précédente mais cette fois ci le premier objet est un ennemi *)
 let collision_ennemi e o =
   match o.kind with
-  |Perso| Ennemi | Wallpaper -> e
+  |Perso| Ennemi | Wallpaper | Bonus -> e
   |Missile -> {e with pv = e.pv-1}
   |Mur | Plateforme ->
     begin
@@ -287,9 +308,17 @@ let collision_ennemi e o =
 (* Toujours la meme fonction mais pour les missiles *)
 let collision_missile m o =
   match o.kind with
-  |Perso | Missile | Wallpaper -> m
+  |Perso | Missile | Wallpaper | Bonus -> m
   |Ennemi | Mur | Plateforme -> {m with pv = 0}
 ;;
+
+(* Toujours la meme fonction mais pour les missiles *)
+let collision_bonus b o =
+  match o.kind with
+  |Perso  -> {b with pv = 0}
+  |Ennemi | Mur | Plateforme | Missile | Wallpaper | Bonus -> o
+;;
+
 
 (* Fonction qui prend deux objets o1 et o2 en argument et renvoie un objet égale au résultat de la collision entre o1 et o2 en fonction du type de o1 *)
 let collision o1 o2 =
@@ -299,6 +328,7 @@ let collision o1 o2 =
       |Perso -> collision_perso o1 o2
       |Ennemi -> collision_ennemi o1 o2
       |Missile -> collision_missile o1 o2
+      |Bonus -> collision_bonus o1 o2
       |Plateforme | Mur | Wallpaper -> o1
     end
   else o1
@@ -315,9 +345,10 @@ let moveall scene =
   check_collision_all  s
 ;;
 
-(* Fonction qui prend *)
+(* Fonction qui prend une scene, un personnage, une texture et un entier,
+renvoie la texture correspondante à l'état du personnage passé en argument *)
 let check_inv scene perso text missile =
-  if perso.timer_collision <> 0 && perso.frame mod 3 = 0 then
+  if perso.timer_collision <> 0 && perso.timer_collision mod 3 = 0 then
     (img_to_texture scene.renderer inv_sprite)
   else if perso.timer_missile >= 1 then
     begin
