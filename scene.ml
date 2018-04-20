@@ -12,10 +12,17 @@ type scene = {
 };;
 
 (* On déclare ici des listes représentant nos niveaux *)
-let niveau1 = [("Sprite/M1.bmp", Wallpaper, 0,0);("Sprite/S1.bmp",Perso,960,500);
-	       ("Sprite/sol.bmp",Plateforme,0,990);("Sprite/ewr1.bmp",Ennemi,400,390);
-	       ("Sprite/ewr1.bmp",Ennemi,100,390); ("Plateforme1.bmp",Plateforme,870,850);
-	       ("right_border_wall.bmp",Mur, 1919,0); ("left_border_wall.bmp",Mur, 0,0)];;
+let niveau1 = [("Sprite/map.bmp", Wallpaper, 0,0);("Sprite/S1.bmp",Perso,100,500);
+	       ("Sprite/sol.bmp",Plateforme,0,1047);("Sprite/ewr1.bmp",Ennemi,1400,390);
+	       ("Sprite/ewr1.bmp",Ennemi,1600,390);
+	       ("Sprite/border_wall.bmp",Mur, 1919,0); ("Sprite/border_wall.bmp",Mur, 0,0);
+	       ("Sprite/pilier.bmp",Mur,900,553);("Sprite/plateforme2.bmp",Plateforme,730,900);
+	       ("Sprite/plateforme2.bmp",Plateforme,730,700);("Sprite/plateforme2.bmp",Plateforme,1030,900);
+	       ("Sprite/plateforme2.bmp",Plateforme,1030,700);("Sprite/plateforme1.bmp",Plateforme,0,400);
+	       ("Sprite/ewr1.bmp",Ennemi,10,300);("Sprite/vide.bmp",Plateforme,525,554);
+	       ("Sprite/vide.bmp",Plateforme,430,510);("Sprite/vide.bmp",Plateforme,337,555)
+
+	      ];;
 let menu = [("menu.bmp",Wallpaper,0,0)];;
 
 (* On déclare ici des tableaux contenant tous les sprites que l'on va utiliser pour notre personnage *)
@@ -317,7 +324,7 @@ let moveall scene =
 
 (* Fonction qui prend *)
 let check_inv scene perso text missile =
-  if perso.timer_collision <> 0 && perso.frame mod 3 = 0 then
+  if perso.timer_collision <> 0 && perso.timer_collision mod 3 = 0 then
     (img_to_texture scene.renderer inv_sprite)
   else if perso.timer_missile >= 1 then
     begin
