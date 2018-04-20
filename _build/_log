@@ -1,0 +1,37 @@
+### Starting build.
+# Target: main.ml.depends, tags: { package(tsdl,tsdl_mixer), extension:ml, file:main.ml, ocaml, ocamldep, quiet, traverse }
+ocamlfind ocamldep -package tsdl,tsdl_mixer -modules main.ml > main.ml.depends # cached
+# Target: music.ml.depends, tags: { package(tsdl,tsdl_mixer), extension:ml, file:music.ml, ocaml, ocamldep, quiet, traverse }
+ocamlfind ocamldep -package tsdl,tsdl_mixer -modules music.ml > music.ml.depends # cached
+# Target: music.cmo, tags: { package(tsdl,tsdl_mixer), byte, compile, extension:cmo, extension:ml, file:music.cmo, file:music.ml, implem, ocaml, quiet, traverse }
+ocamlfind ocamlc -c -package tsdl,tsdl_mixer -o music.cmo music.ml # cached
+# Target: objet.ml.depends, tags: { package(tsdl,tsdl_mixer), extension:ml, file:objet.ml, ocaml, ocamldep, quiet, traverse }
+ocamlfind ocamldep -package tsdl,tsdl_mixer -modules objet.ml > objet.ml.depends
+# Target: scene.ml.depends, tags: { package(tsdl,tsdl_mixer), extension:ml, file:scene.ml, ocaml, ocamldep, quiet, traverse }
+ocamlfind ocamldep -package tsdl,tsdl_mixer -modules scene.ml > scene.ml.depends
+# Target: objet.cmo, tags: { package(tsdl,tsdl_mixer), byte, compile, extension:cmo, extension:ml, file:objet.cmo, file:objet.ml, implem, ocaml, quiet, traverse }
+ocamlfind ocamlc -c -package tsdl,tsdl_mixer -o objet.cmo objet.ml
+# Target: scene.cmo, tags: { package(tsdl,tsdl_mixer), byte, compile, extension:cmo, extension:ml, file:scene.cmo, file:scene.ml, implem, ocaml, quiet, traverse }
+ocamlfind ocamlc -c -package tsdl,tsdl_mixer -o scene.cmo scene.ml
++ ocamlfind ocamlc -c -package tsdl,tsdl_mixer -o scene.cmo scene.ml
+File "scene.ml", line 129, characters 2-33:
+Warning 10: this expression should have type unit.
+File "scene.ml", line 130, characters 2-48:
+Warning 10: this expression should have type unit.
+File "scene.ml", line 137, characters 2-55:
+Warning 10: this expression should have type unit.
+File "scene.ml", line 138, characters 2-47:
+Warning 10: this expression should have type unit.
+File "scene.ml", line 140, characters 2-56:
+Warning 10: this expression should have type unit.
+File "scene.ml", line 141, characters 2-49:
+Warning 10: this expression should have type unit.
+File "scene.ml", line 142, characters 2-17:
+Warning 10: this expression should have type unit.
+File "scene.ml", line 144, characters 12-27:
+Warning 10: this expression should have type unit.
+# Target: main.cmo, tags: { package(tsdl,tsdl_mixer), byte, compile, extension:cmo, extension:ml, file:main.cmo, file:main.ml, implem, ocaml, quiet, traverse }
+ocamlfind ocamlc -c -package tsdl,tsdl_mixer -o main.cmo main.ml
+# Target: main.byte, tags: { package(tsdl,tsdl_mixer), byte, dont_link_with, extension:byte, file:main.byte, link, ocaml, program, quiet, traverse }
+ocamlfind ocamlc -linkpkg -package tsdl,tsdl_mixer music.cmo objet.cmo scene.cmo main.cmo -o main.byte
+# Compilation successful.

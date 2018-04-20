@@ -1,0 +1,29 @@
+open Tsdl;;
+
+let play_music s =
+  match (Tsdl_mixer.Mixer.open_audio 44100 Tsdl_mixer.Mixer.default_format Tsdl_mixer.Mixer.default_channels 1024) with
+  |Error (`Msg e) -> Sdl.log "Music error : %s" e; exit 1
+  |Ok() -> 
+     match (Tsdl_mixer.Mixer.load_mus s) with
+     |Error (`Msg e) -> Sdl.log "Error Load Music : %s" e; exit 1
+     |Ok m ->
+	begin
+	  match (Tsdl_mixer.Mixer.play_music m (-1)) with
+	  |Error (`Msg e) -> Sdl.log "Music error : %s" e; exit 1
+	  |Ok x -> ()
+	end
+;;
+
+let play_effet s =
+  match (Tsdl_mixer.Mixer.open_audio 44100 Tsdl_mixer.Mixer.default_format Tsdl_mixer.Mixer.default_channels 1024) with
+  |Error (`Msg e) -> Sdl.log "Music error : %s" e; exit 1
+  |Ok() -> 
+     match (Tsdl_mixer.Mixer.load_wav s) with
+     |Error (`Msg e) -> Sdl.log "Error Load Music : %s" e; exit 1
+     |Ok m ->
+	begin
+	  match (Tsdl_mixer.Mixer.play_channel (-1) m 0) with
+	  |Error (`Msg e) -> Sdl.log "Music error : %s" e; exit 1
+	  |Ok x -> ()
+	end
+;;
